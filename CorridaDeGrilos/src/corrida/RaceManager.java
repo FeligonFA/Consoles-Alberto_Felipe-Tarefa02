@@ -2,9 +2,10 @@ package corrida;
 import java.util.Scanner;
 
 public class RaceManager {
-	Corredor[] corredores;
+	Corredor[] corredores, winners;
 	short nCorredores, chegada, finalistas;
 	ThreadProcessor[] threads;
+	TeamManager teamManager;
 	
 	public void InstanciarCorredores() 
 	{
@@ -16,6 +17,9 @@ public class RaceManager {
 		nCorredores = (short) (Short.valueOf(input));
 		System.out.println(input + " foi o número selecionado !");
 		corredores = new Corredor[nCorredores];
+		winners = new Corredor[nCorredores];
+		
+		teamManager = new TeamManager((int) Math.ceil(nCorredores/3.0));
 		
 		for (int i = 0; i < nCorredores; i++) 
 		{
@@ -45,8 +49,7 @@ public class RaceManager {
 		threads = new ThreadProcessor[nCorredores];
 
 		for (int i = 0; i < nCorredores; i++) {
-			threads[i] = new ThreadProcessor(corredores[i]);
-			threads[i].start();			
+			threads[i] = new ThreadProcessor(corredores[i], teamManager);
 		}
 		
 		ContinuarCorrida();
@@ -69,20 +72,43 @@ public class RaceManager {
 			}
 		}
 		
-		for (int i = 0; i < nCorredores; i++) {
+		for (int i = 0; i < nCorredores; i++)
+		{
 			if (threads[i].corredor.terminou == 0) {
 				if (threads[i].corredor.pos < chegada)
 				{
 					threads[i].run();		
 				}
 			else{
-				System.out.println(threads[i].corredor.nome + " alcançou a linha de chegada com " + threads[i].corredor.movimentos + " pulos");
 				threads[i].corredor.terminou = 1;
 				finalistas++;
+				threads[i].corredor.team.distances[threads[i].corredor.ID] = threads[i].corredor.pos;
+				threads[i].corredor.team.jumps[threads[i].corredor.ID] = threads[i].corredor.movimentos;
+			
+					for (int j = 0; j < finalistas; j++) 
+					{
+						if (winners[j] == null) 
+						{
+							winners[j] = threads[i].corredor;
+							System.out.println("O " + threads[i].corredor.nome + " Foi O " + j + " Colocado Com " + threads[i].corredor.movimentos + " Pulos.");
+						}
+					}
 				}
 			}
 		}
+		if (finalistas >= nCorredores) 
+		{
+			FinalizarCorrida();
+		}
 		ContinuarCorrida();
+	}
+	void FinalizarCorrida() 
+	{
+		for (int i = 0; i < teamManager.teams.length; i++) 
+		{
+			System.out.println("Time " + i + ": Total de Pulos: " + teamManager.teams[i].GetJumps() + " - Distância Percorrida: " + teamManager.teams[i].GetDistances());
+		}
+		System.out.println("O Time " + winners[0].team.teamID + " Foi O Vencedor !");			
 	}
 }
 

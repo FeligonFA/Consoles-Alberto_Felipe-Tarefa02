@@ -13,9 +13,7 @@ public class Grilo extends Corredor {
 		jumpDistance = (short) (Math.random() * 70);
 		pos += jumpDistance;
 		movimentos++;
-		System.out.println("O " + this.nome + " pulou por " + jumpDistance + "cm e já percorreu " + pos + "cm");
-		
-		
+		System.out.println("O " + this.nome + " pulou por " + jumpDistance + "cm e já percorreu " + pos + "cm");	
 	}
 
 }
